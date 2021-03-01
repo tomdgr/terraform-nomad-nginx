@@ -25,7 +25,7 @@
 
 - name: Archive docker image
   docker_image:
-    name: your_first_ml_model
+    name: my_first_webpage
     tag: local
     archive_path: /vagrant/dev/tmp/my_first_webpage.tar
     source: local
