@@ -1,74 +1,45 @@
-job "docs" {
-  # Specify this job should run in the region named "us". Regions
-  # are defined by the Nomad servers' configuration.
-  #region = "us"
-
-  # Spread the tasks in this job between us-west-1 and us-east-1.
+job "staticwebsite" {
   datacenters = ["dc1"]
-
-  # Run this job as a "service" type. Each job type has different
-  # properties. See the documentation below for more examples.
-  type = "service"
-
-  # Specify this job to have rolling updates, two-at-a-time, with
-  # 30 second intervals.
-  update {
-    stagger      = "60s"
-    max_parallel = 1
-  }
-
+  #type batch and type system are similar, however batch type jobs are intended to run until they exit sucessfully. instead of manually stopped by an operator.
+  type = "service" 
 
   # A group defines a series of tasks that should be co-located
   # on the same client (host). All tasks within a group will be
   # placed on the same host.
-  group "webs" {
+  group "nginxexample" {
     # Specify the number of these tasks we want.
-    count = 5
+    count = 1
 
     network {
       # This requests a dynamic port named "http". This will
       # be something like "46283", but we refer to it via the
       # label "http".
-      port "http" {}
-
-      # This requests a static port on 443 on the host. This
-      # will restrict this task to running once per host, since
-      # there is only one port 443 on each host.
-      port "https" {
-        static = 443
-      }
+      # label "http".
+      
+      # label "http".
+      mode = "bridge"
     }
 
     # The service block tells Nomad how to register this service
     # with Consul for service discovery and monitoring.
     service {
-      # This tells Consul to monitor the service on the port
-      # labelled "http". Since Nomad allocates high dynamic port
-      # numbers, we use labels to refer to them.
-      port = "http"
-
-      check {
-        type     = "http"
-        path     = "/health"
-        interval = "10s"
-        timeout  = "2s"
-      }
+      name = "${service_name}"
+      port = 8080
     }
 
-    # Create an individual task (unit of work). This particular
-    # task utilizes a Docker container to front a web application.
-    task "setup-static-html" {
-      # Specify the driver to be "docker". Nomad supports
-      # multiple drivers.
+    task "setupstatichtml" {
       driver = "docker"
-
-      # Configuration is specific to each driver.
-      config {
-        image = "/vagrant/dev/docker"
+      artifact {
+                source = "s3::http://127.0.0.1:9000/dev/tmp/my_first_webpage.tar"
+                options {
+                    aws_access_key_id = "minioadmin"
+                    aws_access_key_secret = "minioadmin"
+                }
       }
-
-      # Specify the maximum resources required to run the task,
-      # include CPU and memory.
+      config {
+        load = "my_first_webpage.tar"
+        image = "my_first_webpage:local"
+      }
       resources {
         cpu    = 500 # MHz
         memory = 128 # MB

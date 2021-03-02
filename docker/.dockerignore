@@ -3,7 +3,4 @@
 !lib
 !conf
 !others
-!docker
-!usr
-!obj/Docker/publish/*
-!obj/Docker/empty/
+!index.html

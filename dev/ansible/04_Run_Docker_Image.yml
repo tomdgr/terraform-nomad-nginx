@@ -1,0 +1,18 @@
+- name: Run Docker image to create webserver
+  shell: docker run -d -p 8080:80 my_first_webpage:local #TODO:add this as variable.
+  register: docker_output_cmd_json
+  retries: 10
+  delay: 2
+  tags:
+    - example-build
+    - test
+
+
+- name: Verify html site up and running
+  shell: curl localhost:8080
+  register: docker_output_cmd_json
+  retries: 10
+  delay: 2
+  tags:
+    - example-response
+    - test-response
